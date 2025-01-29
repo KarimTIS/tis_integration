@@ -1,0 +1,24 @@
+{
+  "domain": "tis_control",
+  "name": "TIS",
+  "codeowners": [
+    "@mustafa744"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://www.home-assistant.io/integrations/tis_control",
+  "homekit": {},
+  "iot_class": "local_polling",
+  "requirements": [
+    "TISControlProtocol==0.6.12",
+    "aiofiles==24.1.0",
+    "RPi.GPIO==0.7.1",
+    "spidev==3.6",
+    "st7789==0.0.4",
+    "gpiozero==1.6.2",
+    "Cython==3.0.11"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "version": "0.0.13"
+}

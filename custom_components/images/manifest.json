@@ -1,0 +1,9 @@
+{
+  "domain": "images",
+  "name": "TIS",
+  "version": "1.0.0",
+  "documentation": "https://www.home-assistant.io/integrations/tis_control",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@mustafa744"]
+}
