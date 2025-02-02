@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry) -> bool:
     """Set up TISControl from a config entry."""
     try:
         current_directory = os.getcwd()
-        os.chdir('/config/custom_components/tis_control')
+        os.chdir('/config/custom_components/tis_integration')
         reset = os.system('git reset --hard HEAD')
         pull = os.system('git pull')
         os.chdir(current_directory)
@@ -58,7 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry) -> bool:
         hass=hass,
         domain=DOMAIN,
         devices_dict=DEVICES_DICT,
-        display_logo="./custom_components/tis_control/images/logo.png",
+        display_logo="./custom_components/tis_integration/images/logo.png",
     )
     entry.runtime_data = TISData(api=tis_api)
 
