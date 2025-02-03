@@ -1,7 +1,6 @@
 """Binary sensor Platform."""
 
 from __future__ import annotations
-import logging
 
 from TISControlProtocol.api import TISApi
 
@@ -99,10 +98,6 @@ class TISBinarySensor(BinarySensorEntity):
                         else:
                             self._attr_is_on = False
                             self._attr_state = STATE_OFF
-
-                        logging.error(
-                            f"got real time up[date for {self._channel_number}, value: {updated_channel_value}"
-                        )
 
             await self.async_update_ha_state(True)
 
