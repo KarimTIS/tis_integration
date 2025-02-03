@@ -41,5 +41,4 @@ class SensorUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> bool:
         """Fetch data from API."""
         # Here you should return the data fetched from the API
-        logging.error(f"Update New async update date: {self.update_packet}")
         return await self.api.protocol.sender.send_packet(self.update_packet)
