@@ -103,7 +103,7 @@ def get_coordinator(
         coordinators[coordinator_id] = SensorUpdateCoordinator(
             hass,
             tis_api,
-            timedelta(seconds=5),
+            timedelta(seconds=30),
             device_id,
             update_packet,
         )
@@ -146,7 +146,7 @@ class CoordinatedTemperatureSensor(BaseSensorEntity, SensorEntity):
         def handle_temperature_feedback(event: Event):
             """Handle the LUNA temperature update event."""
             try:
-                if event.data["feedback_type"] == "health_feedback":
+                if event.data["feedback_type"] == "temp_feedback":
                     self._state = event.data["temp"]
                 self.async_write_ha_state()
             except Exception as e:
