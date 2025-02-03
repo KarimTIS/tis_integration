@@ -35,7 +35,7 @@ class SensorUpdateCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"Sensor Update Coordinator for {device_id}",
-            update_interval=timedelta(seconds=30),
+            update_interval=update_interval,
         )
 
     async def _async_update_data(self) -> bool:
