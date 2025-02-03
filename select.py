@@ -120,7 +120,6 @@ class TISSecurity(SelectEntity):
         mode = SECURITY_OPTIONS.get(option,None)
         if mode:
             control_packet = handler.generate_control_security_packet(self,mode)
-            logging.error(f"Security packet: {control_packet}")
             ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
             
             if ack:

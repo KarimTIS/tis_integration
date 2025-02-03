@@ -123,7 +123,7 @@ class TISSwitch(SwitchEntity):
         try:
             self.listener = self.hass.bus.async_listen(MATCH_ALL, handle_event)
             _ = await self.api.protocol.sender.send_packet(self.update_packet)
-        except e:
+        except Exception as e:
             logging.error(f'error in async_added_to_hass fun e: {e}')
 
     async def async_will_remove_from_hass(self) -> None:
@@ -147,7 +147,7 @@ class TISSwitch(SwitchEntity):
                     "channel_number": self.channel_number,
                 }
                 self.hass.bus.async_fire(str(self.device_id), event_data)
-        except e:
+        except Exception as e:
             logging.error(f'error in async_turn_on e: {e}')
         self.schedule_update_ha_state()
 
@@ -168,7 +168,7 @@ class TISSwitch(SwitchEntity):
                     "channel_number": self.channel_number,
                 }
                 self.hass.bus.async_fire(str(self.device_id), event_data)
-        except e:
+        except Exception as e:
             logging.error(f'error in async_turn_off e: {e}')
         self.schedule_update_ha_state()
 
