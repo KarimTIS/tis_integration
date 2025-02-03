@@ -53,12 +53,9 @@ async def async_setup_entry(
             # create the sensor objects
             sensor_objects = [
                 sensor_handler(
-                    get_coordinator(
-                        hass=hass,
-                        tis_api=tis_api,
-                        device_id=device_id,
-                        gateway=gateway,
-                    ),
+                    hass=hass,
+                    tis_api=tis_api,
+                    gateway=gateway,
                     name=appliance_name,
                     device_id=device_id,
                 )
@@ -74,7 +71,7 @@ async def async_setup_entry(
 
 
 def get_coordinator(
-    hass: HomeAssistant, tis_api: TISApi, device_id: list[int], gateway: str
+    hass: HomeAssistant, tis_api: TISApi, device_id: list[int], gateway: str, coordinator_type: str
 ) -> SensorUpdateCoordinator:
     """Get or create a SensorUpdateCoordinator for the given device_id.
 
@@ -89,26 +86,31 @@ def get_coordinator(
     :return: The SensorUpdateCoordinator for the given device_id.
     :rtype: SensorUpdateCoordinator
     """
-    device_id_tuple = tuple(device_id)  # Convert list to tuple for dictionary key
+    coordinator_id = f'{tuple(device_id)}_{coordinator_type}'
 
-    if device_id_tuple not in coordinators:
+    if coordinator_id not in coordinators:
         logging.warning("creating new coordinator")
-        _entity = TempEntity(device_id, tis_api, gateway)
-        update_packet = protocol_handler.generate_health_sensor_update_packet(
-            entity=_entity
-        )
+        entity = TempEntity(device_id, tis_api, gateway)
+        if coordinator_type == "temp_sensor":
+            update_packet = protocol_handler.generate_temp_sensor_update_packet(
+                entity=entity
+            )
+        elif coordinator_type == "health_sensor":
+            update_packet = protocol_handler.generate_health_sensor_update_packet(
+                entity=entity
+            )
         # TODO: fix this
-        coordinators[device_id_tuple] = SensorUpdateCoordinator(
+        coordinators[coordinator_id] = SensorUpdateCoordinator(
             hass,
             tis_api,
             timedelta(seconds=30),
             device_id,
             update_packet,
         )
-    return coordinators[device_id_tuple]
-
+    return coordinators[coordinator_id]
 
 protocol_handler = TISProtocolHandler()
+
 _LOGGER = logging.getLogger(__name__)
 coordinators = {}
 
@@ -123,11 +125,14 @@ class CoordinatedTemperatureSensor(BaseSensorEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
+        hass: HomeAssistant,
+        tis_api: TISApi,
+        gateway: str,
         name: str,
         device_id: list,
     ) -> None:
         """Initialize the sensor."""
+        coordinator = get_coordinator(hass, tis_api, device_id, gateway, "temp_sensor")
         super().__init__(coordinator, name, device_id)
         self._attr_icon = "mdi:thermometer"
         self.name = name
@@ -171,11 +176,15 @@ class CoordinatedLUXSensor(BaseSensorEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
+        hass: HomeAssistant,
+        tis_api: TISApi,
+        gateway: str,
         name: str,
         device_id: list,
     ) -> None:
         """Initialize the sensor."""
+        coordinator = get_coordinator(hass, tis_api, device_id, gateway, "health_sensor")
+
         super().__init__(coordinator, name, device_id)
         self._attr_icon = "mdi:brightness-6"
         self.name = name
