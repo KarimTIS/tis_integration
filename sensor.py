@@ -92,7 +92,7 @@ def get_coordinator(
     device_id_tuple = tuple(device_id)  # Convert list to tuple for dictionary key
 
     if device_id_tuple not in coordinators:
-        logging.error("creating new coordinator")
+        logging.warning("creating new coordinator")
         _entity = TempEntity(device_id, tis_api, gateway)
         update_packet = protocol_handler.generate_health_sensor_update_packet(
             entity=_entity
@@ -101,7 +101,7 @@ def get_coordinator(
         coordinators[device_id_tuple] = SensorUpdateCoordinator(
             hass,
             tis_api,
-            timedelta(seconds=5),
+            timedelta(seconds=30),
             device_id,
             update_packet,
         )
