@@ -3,22 +3,13 @@
 
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
-import uuid
 import os
 
-import aiofiles
-from aiohttp import web
 from attr import dataclass
 from TISControlProtocol.api import TISApi, GetKeyEndpoint, ScanDevicesEndPoint, TISEndPoint
-from TISControlProtocol.Protocols.udp.ProtocolHandler import (
-    TISPacket,
-    TISProtocolHandler,
-)
+from TISControlProtocol.Protocols.udp.ProtocolHandler import TISProtocolHandler
 
-from homeassistant.components.http import HomeAssistantView
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
