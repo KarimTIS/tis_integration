@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DEVICES_DICT, DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.COVER, Platform.CLIMATE, Platform.SELECT, Platform.LOCK]
+PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.COVER, Platform.CLIMATE, Platform.SELECT, Platform.LOCK, Platform.FAN]
 type TISConfigEntry = ConfigEntry[TISData]
 protocol_handler = TISProtocolHandler()
 
