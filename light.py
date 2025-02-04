@@ -22,7 +22,6 @@ from homeassistant.components.light import (
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNKNOWN
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-import RPi.GPIO as GPIO  # type: ignore
 
 from . import TISConfigEntry
 
@@ -119,7 +118,6 @@ async def async_setup_entry(
             for light_name, r_channel, g_channel, b_channel, w_channel, device_id, is_protected, gateway in rgbw_light_entities
         ]
         async_add_devices(tis_rgbw_lights)
-    async_add_devices([TISCPUFan(tis_api)])
 
 
 class TISLight(LightEntity):
@@ -239,7 +237,6 @@ class TISLight(LightEntity):
             self._attr_state = None
             self._attr_brightness = None
         self.async_write_ha_state()
-        # self.schedule_update_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the light off."""
@@ -253,7 +250,6 @@ class TISLight(LightEntity):
             self._attr_state = None
             self._attr_brightness = None
         self.async_write_ha_state()
-        # self.schedule_update_ha_state()
 
 
 class TISRGBLight(LightEntity):
@@ -655,97 +651,3 @@ class TISRGBWLight(LightEntity):
         self._attr_state = False
         self._attr_rgbw_color = (0, 0, 0, 0)
         self.async_write_ha_state()
-
-
-class TISCPUFan(LightEntity):
-    """A platform to control CPU fan from RPI GPIO."""
-
-    def __init__(self, api: TISApi):
-        self._pin = 13
-        self._state = True
-        self._temperature_threshold = 40
-        self._attr_brightness = 127
-        self.setup_light()
-        self._listener = None
-        self._api = api
-
-    def setup_light(self):
-        self._attr_supported_color_modes = {ColorMode.BRIGHTNESS}
-        self._attr_color_mode = ColorMode.BRIGHTNESS
-        self._attr_supported_features = LightEntityFeature.TRANSITION
-        # Set up the GPIO pin
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self._pin, GPIO.OUT)
-        try:
-            self._pwm = GPIO.PWM(self._pin, 100)  # 100Hz frequency
-        except RuntimeError:
-            pass
-        self._pwm.start(self._attr_brightness / 2.55)  # Start with duty cycle of 50%
-
-    async def async_added_to_hass(self):
-        @callback
-        async def handle_overheat_event(event: Event):
-            """Handle the event."""
-            # check if event is for this switch
-            if event.event_type == "cpu_temperature":
-                if event.data["temperature"] > self._temperature_threshold:
-                    # call a blocking code
-                    try:
-                        await self.async_turn_on(brightness=255)
-                    except Exception as e:
-                        logging.error(f"error setting Fan speed, {e}")
-                else:
-                    try:
-                        await self.async_turn_on(brightness=127)
-                    except Exception as e:
-                        logging.error(f"error setting Fan speed, {e}")
-
-        self._listener = self.hass.bus.async_listen(
-            "cpu_temperature", handle_overheat_event
-        )
-
-    async def async_will_remove_from_hass(self) -> None:
-        """Disconnect PWM when removed."""
-        self._pwm.stop()
-        GPIO.cleanup()
-
-    @property
-    def name(self):
-        return "CPU Fan Speed Controller"
-
-    @property
-    def icon(self):
-        """Return the icon to use in the frontend, if any."""
-        return "mdi:fan"
-
-    @property
-    def is_on(self):
-        """Return true if the fan is on."""
-        return self._state
-
-    @property
-    def brightness(self):
-        """Return the brightness of the light (fan speed)."""
-        return self._attr_brightness
-
-    @property
-    def supported_features(self):
-        return self._attr_supported_features
-
-    async def async_turn_on(self, **kwargs) -> None:
-        """Turn the fan on."""
-        try:
-            self._attr_brightness = kwargs[ATTR_BRIGHTNESS]
-        except KeyError:
-            self._attr_brightness = 255
-        # set fan speed
-        self._pwm.ChangeDutyCycle(self._attr_brightness / 2.55)
-        # self._pwm2.ChangeDutyCycle(self._attr_brightness / 2.55)
-        self._state = True
-        self.async_write_ha_state()
-
-    async def async_turn_off(self, **kwargs) -> None:
-        """Turn the fan off."""
-        self._pwm.ChangeDutyCycle(0)
-        # self._pwm2.ChangeDutyCycle(0)
-        self._state = False
