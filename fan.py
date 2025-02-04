@@ -50,8 +50,8 @@ class TISCPUFan(FanEntity):
         supported_features: FanEntityFeature,
         api: TISApi,
         pin: int = 13,
-        lower_threshold: float = 35,
-        higher_threshold: float = 40
+        lower_threshold: float = 40,
+        higher_threshold: float = 50
     ) -> None:
         """Initialize the entity."""
         self._pin = pin
