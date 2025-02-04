@@ -12,7 +12,7 @@ import os
 import aiofiles
 from aiohttp import web
 from attr import dataclass
-from TISControlProtocol.api import TISApi
+from TISControlProtocol.api import TISApi, GetKeyEndpoint
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
     TISProtocolHandler,
@@ -157,21 +157,21 @@ class ScanDevicesEndPoint(HomeAssistantView):
         return self.api.hass.data[self.api.domain]["discovered_devices"]
 
 
-class GetKeyEndpoint(HomeAssistantView):
-    """Get Key API endpoint."""
+# class GetKeyEndpoint(HomeAssistantView):
+#     """Get Key API endpoint."""
 
-    url = "/api/get_key"
-    name = "api:get_key"
-    requires_auth = False
+#     url = "/api/get_key"
+#     name = "api:get_key"
+#     requires_auth = False
 
-    def __init__(self, tis_api: TISApi) -> None:
-        """Initialize the API endpoint."""
-        self.api = tis_api
+#     def __init__(self, tis_api: TISApi) -> None:
+#         """Initialize the API endpoint."""
+#         self.api = tis_api
 
-    async def get(self, request):
-        """Handle the get key request."""
-        # Get the MAC address
-        mac = uuid.getnode()
-        mac_address = ":".join(f"{mac:012X}"[i : i + 2] for i in range(0, 12, 2))
-        # Return the MAC address
-        return web.json_response({"key": mac_address})
+#     async def get(self, request):
+#         """Handle the get key request."""
+#         # Get the MAC address
+#         mac = uuid.getnode()
+#         mac_address = ":".join(f"{mac:012X}"[i : i + 2] for i in range(0, 12, 2))
+#         # Return the MAC address
+#         return web.json_response({"key": mac_address})
