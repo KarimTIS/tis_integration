@@ -89,7 +89,7 @@ def get_coordinator(
     coordinator_id = f'{tuple(device_id)}_{coordinator_type}'
 
     if coordinator_id not in coordinators:
-        logging.warning("creating new coordinator")
+        logging.info("creating new coordinator")
         entity = TempEntity(device_id, tis_api, gateway)
         if coordinator_type == "temp_sensor":
             update_packet = protocol_handler.generate_temp_sensor_update_packet(

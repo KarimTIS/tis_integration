@@ -39,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry) -> bool:
         if pull == 0 and reset == 0: 
             logging.warning(f"Updated TIS Integrations")
         else:
-            logging.error(f"Could Not Update TIS Integration: exit error {pull}")
+            logging.warning(f"Could Not Update TIS Integration: exit error {pull}")
 
     except Exception as e:
         logging.error(f"Could Not Update TIS Integration: {e}")

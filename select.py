@@ -7,7 +7,6 @@ from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
     TISProtocolHandler,
 )
-import logging
 
 SECURITY_OPTIONS = {"vacation": 1, "away": 2, "night": 3, "disarm": 6}
 SECURITY_FEEDBACK_OPTIONS = {1: "vacation", 2: "away", 3: "night", 6: "disarm"}

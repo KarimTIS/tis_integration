@@ -183,7 +183,7 @@ class TISClimate(ClimateEntity):
                     operation_value = event.data["operation_value"]
 
                     if self.ac_number == int(ac_number):
-                        logging.warning("AC feedback event: %s", event.data)
+                        logging.info("AC feedback event: %s", event.data)
                         if sub_operation == 0x03:
                             if operation_value == 0x00:
                                 # Turn off
@@ -501,7 +501,7 @@ class TISFloorHeating(ClimateEntity):
             if event.event_type == str(self.device_id):
                 feedback_type = event.data.get("feedback_type", None)
                 if feedback_type == "floor_feedback":
-                    logging.warning("floor heating feedback event: %s", event.data)
+                    logging.info("floor heating feedback event: %s", event.data)
                     heater_number = event.data["number"]
                     sub_operation = event.data["sub_operation"]
                     operation_value = event.data["operation_value"]
@@ -532,7 +532,7 @@ class TISFloorHeating(ClimateEntity):
                                 sub_operation,
                             )
                 elif feedback_type == "floor_update":
-                    logging.warning("floor heating update event: %s", event.data)
+                    logging.info("floor heating update event: %s", event.data)
                     if event.data["heater_number"] == self.heater_number:
                         if event.data["state"] == 0x00:
                             # turn off

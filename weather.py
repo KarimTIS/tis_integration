@@ -104,7 +104,7 @@ class TISWeatherStation(WeatherEntity):
                     # update attributes
                     self._attr_uv_index = float(event.data["uv"])
                     self._attr_native_temperature = event.data["temperature"]
-                    logging.error("event data %s", event.data)
+                    logging.info("event data %s", event.data)
             self.schedule_update_ha_state()
 
         self.listener = self.hass.bus.async_listen(MATCH_ALL, handle_event)

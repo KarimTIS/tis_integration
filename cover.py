@@ -125,7 +125,7 @@ class TISCoverWPos(CoverEntity):
             # check if event is for this switch
             if event.event_type == str(self.device_id):
                 if event.data["feedback_type"] == "control_response":
-                    logging.warning("channel number for cover: %s", self.channel_number)
+                    logging.info("channel number for cover: %s", self.channel_number)
                     channel_value = event.data["additional_bytes"][2]
                     channel_number = event.data["channel_number"]
                     if int(channel_number) == self.channel_number:

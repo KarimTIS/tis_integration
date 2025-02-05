@@ -2,7 +2,6 @@ from homeassistant.components.lock import LockEntity
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from TISControlProtocol.api import TISApi
-import logging
 import asyncio
 
 
