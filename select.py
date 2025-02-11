@@ -1,7 +1,7 @@
 from homeassistant.components.select import SelectEntity, ATTR_OPTIONS
 from TISControlProtocol.mock_api import TISApi
 
-from homeassistant.const import MATCH_ALL
+from homeassistant.const import MATCH_ALL, Platform
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
