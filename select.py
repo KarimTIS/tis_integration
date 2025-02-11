@@ -47,6 +47,7 @@ class TISSecurity(SelectEntity):
     def __init__(self, api, name, options, initial_option, channel_number, device_id, gateway):
         self._name = name
         self.api = api
+        self.unique_id = f"select_{self.name}"
         self._attr_options = options
         self._attr_current_option = initial_option
         self._attr_icon = "mdi:shield"
