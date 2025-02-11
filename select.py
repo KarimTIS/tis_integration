@@ -48,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
                 initial_option="disarm",
                 channel_number= 1,
                 device_id=[1,23],
-                gateway = "192.168.1.200"
+                gateway = "192.168.1.99"
             )
         ]
     )
