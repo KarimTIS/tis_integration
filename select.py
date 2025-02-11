@@ -1,57 +1,46 @@
 from homeassistant.components.select import SelectEntity, ATTR_OPTIONS
 from TISControlProtocol.mock_api import TISApi
-from .const import DOMAIN
+
 from homeassistant.const import MATCH_ALL
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
     TISProtocolHandler,
 )
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from . import TISConfigEntry
 
 SECURITY_OPTIONS = {"vacation": 1, "away": 2, "night": 3, "disarm": 6}
 SECURITY_FEEDBACK_OPTIONS = {1: "vacation", 2: "away", 3: "night", 6: "disarm"}
 
 handler = TISProtocolHandler()
 
-async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
-    """Set up the TIS switches."""
+async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_add_devices: AddEntitiesCallback):
+    """Set up the TIS select."""
     tis_api: TISApi = entry.runtime_data.api
     # # Fetch all switches from the TIS API
     # await tis_api.get_entities()
-    # switches: dict = tis_api._config_entries.get("switch", None)
-    # if switches:
-    #     # Prepare a list of tuples containing necessary switch details
-    #     switch_entities = [
-    #         (
-    #             appliance_name,
-    #             next(iter(appliance["channels"][0].values())),
-    #             appliance["device_id"],
-    #         )
-    #         for switch in switches
-    #         for appliance_name, appliance in switch.items()
-    #     ]
-    #     # Create TISSwitch objects and add them to Home Assistant
-    #     tis_switches = [
-    #         TISSwitch(tis_api, switch_name, channel_number, device_id)
-    #         for switch_name, channel_number, device_id in switch_entities
-    #     ]
-    #     async_add_devices(tis_switches)
-
-
-
-    async_add_devices(
-        [
-            TISSecurity(
-                name="Security Module",
-                api=tis_api,
-                options=list(SECURITY_OPTIONS.keys()),
-                initial_option="disarm",
-                channel_number= 1,
-                device_id=[1,23],
-                gateway = "192.168.1.200"
+    selects: dict = await tis_api.get_entities(platform=Platform.SELECT)
+    
+    if selects:
+        # Prepare a list of tuples containing necessary switch details
+        select_entities = [
+            (
+                appliance_name,
+                next(iter(appliance["channels"][0].values())),
+                appliance["device_id"],
             )
+            for select in selects
+            for appliance_name, appliance in select.items()
         ]
-    )
+        # Create TISSwitch objects and add them to Home Assistant
+        tis_selects = [
+            TISSecurity(tis_api, select_name, channel_number, device_id)
+            for select_name, channel_number, device_id in select_entities
+        ]
+        async_add_devices(tis_selects)
+
 
 
 class TISSecurity(SelectEntity):
