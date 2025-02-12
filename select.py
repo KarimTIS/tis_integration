@@ -21,7 +21,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_ad
     tis_api: TISApi = entry.runtime_data.api
     # # Fetch all switches from the TIS API
     # await tis_api.get_entities()
-    selects: dict = await tis_api.get_entities(platform=Platform.SELECT)
+    selects: dict = await tis_api.get_entities(platform="security")
     
     if selects:
         # Prepare a list of tuples containing necessary switch details
