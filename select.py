@@ -30,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_ad
                 appliance_name,
                 next(iter(appliance["channels"][0].values())),
                 appliance["device_id"],
+                appliance["gateway"],
             )
             for select in selects
             for appliance_name, appliance in select.items()
