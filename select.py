@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_ad
         ]
         async_add_devices(tis_selects)
 
-
+protocol_handler = TISProtocolHandler()
 
 class TISSecurity(SelectEntity):
     def __init__(self, api, name, options, initial_option, channel_number, device_id, gateway):
@@ -68,6 +68,9 @@ class TISSecurity(SelectEntity):
         self.channel_number=int(channel_number)
         self.device_id = device_id
         self.gateway = gateway
+        self.update_packet: TISPacket = protocol_handler.generate_update_security_packet(
+            self
+        )
 
     async def async_added_to_hass(self) -> None:
         @callback
@@ -92,7 +95,8 @@ class TISSecurity(SelectEntity):
             # self.update_security_status()
 
         self._listener = self.hass.bus.async_listen(MATCH_ALL, handle_event)
-
+        _ = await self.api.protocol.sender.send_packet(self.update_packet)
+        
 
     @property
     def name(self):
