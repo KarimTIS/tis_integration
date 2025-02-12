@@ -36,8 +36,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_ad
         ]
         # Create TISSwitch objects and add them to Home Assistant
         tis_selects = [
-            TISSecurity(tis_api, select_name, channel_number, device_id)
-            for select_name, channel_number, device_id in select_entities
+            TISSecurity(
+                api=tis_api,
+                name=select_name,
+                options=list(SECURITY_OPTIONS.keys()),
+                initial_option="disarm",
+                channel_number= channel_number,
+                device_id=device_id,
+                gateway = gateway
+            )
+            for select_name, channel_number, device_id, gateway in select_entities
         ]
         async_add_devices(tis_selects)
 
