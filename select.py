@@ -117,7 +117,7 @@ class TISSecurity(SelectEntity):
             if self._attr_read_only:
                 # revert state to the current option
                 # x = self._attr_current_option
-                self._state = self._attr_current_option = "disarm"
+                # self._state = self._attr_current_option = "disarm"
                 self.async_write_ha_state()
                 # self._state = self._attr_current_option = x
                 # self.async_write_ha_state()
