@@ -116,7 +116,10 @@ class TISSecurity(SelectEntity):
         if self._attr_is_protected:
             if self._attr_read_only:
                 # revert state to the current option
-                self.schedule_update_ha_state()
+                self._state = "disarm"
+                self.async_write_ha_state()
+                self._state = self._attr_current_option
+                self.async_write_ha_state()
                 raise ValueError("The security module is protected and read only")
             else:
                 mode = SECURITY_OPTIONS.get(option,None)
