@@ -110,20 +110,22 @@ class TISSecurity(SelectEntity):
             if self._attr_read_only:
                 # revert state to the current option
                 raise ValueError("The security module is protected and read only")
+            else:
+                mode = SECURITY_OPTIONS.get(option,None)
+                if mode:
+                    control_packet = handler.generate_control_security_packet(self,mode)
+                    ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
+                    
+                    if ack:
+                        # set state        
+                        self._state = self._attr_current_option = option
+                        self.async_write_ha_state()
 
         if option not in self._attr_options:
             raise ValueError(
                 f"Invalid option: {option} (possible options: {self._attr_options})"
             )
-        mode = SECURITY_OPTIONS.get(option,None)
-        if mode:
-            control_packet = handler.generate_control_security_packet(self,mode)
-            ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
-            
-            if ack:
-                # set state        
-                self._state = self._attr_current_option = option
-                self.async_write_ha_state()
+        
 
 
 
