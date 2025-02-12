@@ -11,6 +11,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import TISConfigEntry
 
+import logging
+
 SECURITY_OPTIONS = {"vacation": 1, "away": 2, "night": 3, "disarm": 6}
 SECURITY_FEEDBACK_OPTIONS = {1: "vacation", 2: "away", 3: "night", 6: "disarm"}
 
@@ -71,7 +73,12 @@ class TISSecurity(SelectEntity):
         @callback
         async def handle_event(event: Event):
             """Handle a admin lock status change event."""
-            self.protect() if event.data.get("locked") else self.unprotect()
+            if event.event_type == "admin_lock":
+                logging.warning(f"admin lock event: {event.data}")
+                if event.data.get("locked"):
+                    self.protect() 
+                else:
+                    self.unprotect()
 
             if event.data.get("feedback_type") == "security_feedback":
                 if self.channel_number == event.data["channel_number"]:
