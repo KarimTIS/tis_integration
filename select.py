@@ -1,7 +1,7 @@
 from homeassistant.components.select import SelectEntity
 from TISControlProtocol.mock_api import TISApi
 
-from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE
+from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
@@ -138,6 +138,10 @@ class TISSecurity(SelectEntity):
                         # set state
                         logging.info(f"setting state to {option}")
                         self._state = self._attr_current_option = option
+                        self.async_write_ha_state()
+                    else:
+                        logging.warning(f"Failed to set security mode to {option}")
+                        self._state = self._attr_current_option = STATE_UNKNOWN
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
