@@ -90,6 +90,7 @@ class TISSecurity(SelectEntity):
                     mode = event.data["mode"]
                     if mode in SECURITY_FEEDBACK_OPTIONS:
                         option = SECURITY_FEEDBACK_OPTIONS[mode]
+                        logging.warning(f"mode: {mode}, option: {option}")
                         self.last_state = self._state
                         self._state = self._attr_current_option = option
             self.async_write_ha_state()
