@@ -67,7 +67,6 @@ class TISSecurity(SelectEntity):
         self.channel_number=int(channel_number)
         self.device_id = device_id
         self.gateway = gateway
-        self._is_connected = True
         self.update_packet: TISPacket = protocol_handler.generate_update_security_packet(
             self
         )
@@ -76,7 +75,6 @@ class TISSecurity(SelectEntity):
         @callback
         async def handle_event(event: Event):
             """Handle a admin lock status change event."""
-            logging.warning(f"is connected? {self._is_connected}")
             if event.event_type == "admin_lock":
                 logging.info(f"admin lock event: {event.data}")
                 if event.data.get("locked"):
@@ -118,9 +116,6 @@ class TISSecurity(SelectEntity):
         self._attr_read_only = False
 
     async def async_select_option(self, option):
-        if not self._is_connected:
-            logging.error("Device is disconnected. Cannot change state.")
-
         if self._attr_is_protected:
             if self._attr_read_only:
                 # revert state to the current option
@@ -128,11 +123,7 @@ class TISSecurity(SelectEntity):
                 logging.error("resetting state to last known state")
                 await self.api.protocol.sender.send_packet(self.update_packet)
                 self.async_write_ha_state()
-
-                if self._is_connected:
-                    raise ValueError("The security module is protected and read only")
-                else:
-                    raise ValueError("Device is disconnected. Cannot change state.")
+                raise ValueError("The security module is protected and read only")
             else:
                 logging.info(f"setting security mode to {option}")
                 mode = SECURITY_OPTIONS.get(option, None)
@@ -146,12 +137,10 @@ class TISSecurity(SelectEntity):
                         # set state
                         logging.info(f"setting state to {option}")
                         self._state = self._attr_current_option = option
-                        self._is_connected = True
                         self.async_write_ha_state()
                     else:
                         logging.warning(f"Failed to set security mode to {option}")
                         self._state = self._attr_current_option = None
-                        self._is_connected = False
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
