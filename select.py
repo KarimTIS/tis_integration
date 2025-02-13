@@ -107,7 +107,7 @@ class TISSecurity(SelectEntity):
 
     @property
     def current_option(self):
-        return self._attr_current_option if self._attr_current_option in SECURITY_OPTIONS else None
+        return self._attr_current_option if self._attr_current_option in SECURITY_FEEDBACK_OPTIONS.values() else None
 
     def protect(self):
         self._attr_read_only = True
