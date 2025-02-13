@@ -74,6 +74,7 @@ class TISSecurity(SelectEntity):
     async def async_added_to_hass(self) -> None:
         @callback
         async def handle_event(event: Event):
+            logging.warning(f"event: {event}")
             """Handle a admin lock status change event."""
             if event.event_type == "admin_lock":
                 logging.info(f"admin lock event: {event.data}")
