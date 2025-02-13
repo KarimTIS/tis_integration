@@ -1,7 +1,7 @@
 from homeassistant.components.select import SelectEntity
 from TISControlProtocol.api import TISApi
 
-from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
@@ -21,8 +21,7 @@ handler = TISProtocolHandler()
 async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_add_devices: AddEntitiesCallback):
     """Set up the TIS select."""
     tis_api: TISApi = entry.runtime_data.api
-    # # Fetch all switches from the TIS API
-    # await tis_api.get_entities()
+    # Fetch all switches from the TIS API
     selects: dict = await tis_api.get_entities(platform="security")
     
     if selects:
@@ -141,7 +140,7 @@ class TISSecurity(SelectEntity):
                         self.async_write_ha_state()
                     else:
                         logging.warning(f"Failed to set security mode to {option}")
-                        self._state = self._attr_current_option = STATE_UNKNOWN
+                        self._state = self._attr_current_option = None
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
