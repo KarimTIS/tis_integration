@@ -67,6 +67,7 @@ class TISSecurity(SelectEntity):
         self.channel_number=int(channel_number)
         self.device_id = device_id
         self.gateway = gateway
+        self._is_connected = True
         self.update_packet: TISPacket = protocol_handler.generate_update_security_packet(
             self
         )
@@ -74,9 +75,11 @@ class TISSecurity(SelectEntity):
     async def async_added_to_hass(self) -> None:
         @callback
         async def handle_event(event: Event):
-            logging.warning(f"event: {event}")
+            logging.warning(f"event data: {event.data}")
+            logging.warning(f"is connected? {self._is_connected}")
             """Handle a admin lock status change event."""
             if event.event_type == "admin_lock":
+                self._is_connected = True
                 logging.info(f"admin lock event: {event.data}")
                 if event.data.get("locked"):
                     self.protect() 
@@ -84,6 +87,7 @@ class TISSecurity(SelectEntity):
                     self.unprotect()
 
             if event.data.get("feedback_type") == "security_feedback" or event.data.get("feedback_type") == "security_update":
+                self._is_connected = True
                 logging.info(f"security feedback event: {event.data}")
                 if self.channel_number == event.data["channel_number"]:
                     mode = event.data["mode"]
@@ -117,8 +121,13 @@ class TISSecurity(SelectEntity):
         self._attr_read_only = False
 
     async def async_select_option(self, option):
+        if not self._is_connected:
+            logging.error("Device is disconnected. Cannot change state.")
+
         if self._attr_is_protected:
             if self._attr_read_only:
+                if not self._is_connected:
+                    raise ValueError("Device is disconnected. Cannot change state.")
                 # revert state to the current option
                 self._state = self._attr_current_option = STATE_UNAVAILABLE
                 logging.error("resetting state to last known state")
@@ -138,10 +147,12 @@ class TISSecurity(SelectEntity):
                         # set state
                         logging.info(f"setting state to {option}")
                         self._state = self._attr_current_option = option
+                        self._is_connected = True
                         self.async_write_ha_state()
                     else:
                         logging.warning(f"Failed to set security mode to {option}")
                         self._state = self._attr_current_option = None
+                        self._is_connected = False
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
