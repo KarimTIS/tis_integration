@@ -7,7 +7,7 @@ from math import ceil
 from typing import Any
 
 from TISControlProtocol.BytesHelper import int_to_8_bit_binary
-from TISControlProtocol.mock_api import TISApi
+from TISControlProtocol.api import TISApi
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
     TISProtocolHandler,
@@ -26,8 +26,8 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: TISConfigEntry, async_add_devices: AddEntitiesCallback
 ) -> None:
     """Set up the TIS switches."""
-    # tis_api: TISApi = hass.data[DOMAIN]["tis_api"]
     tis_api: TISApi = entry.runtime_data.api
+
     # Fetch all switches from the TIS API we only have one type here
     switches: dict = await tis_api.get_entities(platform=Platform.SWITCH)
     if switches:
@@ -43,6 +43,7 @@ async def async_setup_entry(
             for switch in switches
             for appliance_name, appliance in switch.items()
         ]
+
         # Create TISSwitch objects and add them to Home Assistant
         try:
             tis_switches = [

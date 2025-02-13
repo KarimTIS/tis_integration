@@ -1,5 +1,5 @@
 from homeassistant.components.select import SelectEntity
-from TISControlProtocol.mock_api import TISApi
+from TISControlProtocol.api import TISApi
 
 from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import callback, Event, HomeAssistant
@@ -108,7 +108,7 @@ class TISSecurity(SelectEntity):
 
     @property
     def current_option(self):
-        return self._attr_current_option
+        return self._attr_current_option if self._attr_current_option in SECURITY_OPTIONS else None
 
     def protect(self):
         self._attr_read_only = True
@@ -141,7 +141,7 @@ class TISSecurity(SelectEntity):
                         self.async_write_ha_state()
                     else:
                         logging.warning(f"Failed to set security mode to {option}")
-                        self._state = self._attr_current_option = None
+                        self._state = self._attr_current_option = STATE_UNKNOWN
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
