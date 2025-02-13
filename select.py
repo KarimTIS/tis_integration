@@ -83,12 +83,14 @@ class TISSecurity(SelectEntity):
                 else:
                     self.unprotect()
 
-            if event.data.get("feedback_type") == "security_feedback":
+            if event.data.get("feedback_type") == "security_feedback" or event.data.get("feedback_type") == "security_update":
                 if self.channel_number == event.data["channel_number"]:
                     mode = event.data["mode"]
                     if mode in SECURITY_FEEDBACK_OPTIONS:
                         option = SECURITY_FEEDBACK_OPTIONS[mode]
                         self._state = self._attr_current_option = option
+
+            
 
             self.async_write_ha_state()
 
