@@ -133,8 +133,8 @@ class TISSecurity(SelectEntity):
                     logging.warning(f"mode: {mode}")
                     control_packet = handler.generate_control_security_packet(self, mode)
                     ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
-                    self.logging.warning(f"control_packet: {control_packet}")
-                    self.logging.warning(f"ack: {ack}")
+                    logging.warning(f"control_packet: {control_packet}")
+                    logging.warning(f"ack: {ack}")
                     if ack:
                         # set state
                         logging.warning(f"setting state to {option}")
