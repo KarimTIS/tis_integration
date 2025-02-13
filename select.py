@@ -1,7 +1,7 @@
-from homeassistant.components.select import SelectEntity, ATTR_OPTIONS
+from homeassistant.components.select import SelectEntity
 from TISControlProtocol.mock_api import TISApi
 
-from homeassistant.const import MATCH_ALL, Platform
+from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
@@ -64,11 +64,10 @@ class TISSecurity(SelectEntity):
         self._attr_icon = "mdi:shield"
         self._attr_is_protected = True
         self._attr_read_only = True
-        self._listner = None
+        self._listener = None
         self.channel_number=int(channel_number)
         self.device_id = device_id
         self.gateway = gateway
-        self.last_state = initial_option
         self.update_packet: TISPacket = protocol_handler.generate_update_security_packet(
             self
         )
@@ -91,7 +90,6 @@ class TISSecurity(SelectEntity):
                     if mode in SECURITY_FEEDBACK_OPTIONS:
                         option = SECURITY_FEEDBACK_OPTIONS[mode]
                         logging.warning(f"mode: {mode}, option: {option}")
-                        self.last_state = self._state
                         self._state = self._attr_current_option = option
             self.async_write_ha_state()
 
@@ -122,8 +120,7 @@ class TISSecurity(SelectEntity):
         if self._attr_is_protected:
             if self._attr_read_only:
                 # revert state to the current option
-                logging.error(f"reverting state to {self.last_state}")
-                self._state = self._attr_current_option = self.last_state
+                self._state = self._attr_current_option = STATE_UNAVAILABLE
                 self.async_write_ha_state()
                 self.schedule_update_ha_state()
                 raise ValueError("The security module is protected and read only")
@@ -139,7 +136,6 @@ class TISSecurity(SelectEntity):
                     if ack:
                         # set state
                         logging.warning(f"setting state to {option}")
-                        self.last_state = self._state
                         self._state = self._attr_current_option = option
                         self.async_write_ha_state()
 
