@@ -79,7 +79,6 @@ class TISSecurity(SelectEntity):
             logging.warning(f"is connected? {self._is_connected}")
             """Handle a admin lock status change event."""
             if event.event_type == "admin_lock":
-                self._is_connected = True
                 logging.info(f"admin lock event: {event.data}")
                 if event.data.get("locked"):
                     self.protect() 
