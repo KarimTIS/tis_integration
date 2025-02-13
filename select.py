@@ -124,7 +124,6 @@ class TISSecurity(SelectEntity):
                 # revert state to the current option
                 logging.error(f"reverting state to {self.last_state}")
                 self._state = self._attr_current_option = self.last_state
-                self.last_state = self._state
                 self.async_write_ha_state()
                 self.schedule_update_ha_state()
                 raise ValueError("The security module is protected and read only")
