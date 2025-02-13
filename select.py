@@ -60,7 +60,7 @@ class TISSecurity(SelectEntity):
         self.api = api
         self.unique_id = f"select_{self.name}"
         self._attr_options = options
-        self._attr_current_option = initial_option
+        self._attr_current_option = self._state = initial_option
         self._attr_icon = "mdi:shield"
         self._attr_is_protected = True
         self._attr_read_only = True
