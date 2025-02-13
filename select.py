@@ -120,9 +120,9 @@ class TISSecurity(SelectEntity):
         if self._attr_is_protected:
             if self._attr_read_only:
                 # revert state to the current option
+                self._state = self._attr_current_option = STATE_UNAVAILABLE
+                logging.warning("sending security update packet...")
                 await self.api.protocol.sender.send_packet(self.update_packet)
-
-                # self._state = self._attr_current_option = STATE_UNAVAILABLE
                 self.async_write_ha_state()
                 self.schedule_update_ha_state()
                 raise ValueError("The security module is protected and read only")
