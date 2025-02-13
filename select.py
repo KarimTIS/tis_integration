@@ -124,14 +124,16 @@ class TISSecurity(SelectEntity):
 
         if self._attr_is_protected:
             if self._attr_read_only:
-                if not self._is_connected:
-                    raise ValueError("Device is disconnected. Cannot change state.")
                 # revert state to the current option
                 self._state = self._attr_current_option = STATE_UNAVAILABLE
                 logging.error("resetting state to last known state")
                 await self.api.protocol.sender.send_packet(self.update_packet)
                 self.async_write_ha_state()
-                raise ValueError("The security module is protected and read only")
+
+                if self._is_connected:
+                    raise ValueError("The security module is protected and read only")
+                else:
+                    raise ValueError("Device is disconnected. Cannot change state.")
             else:
                 logging.info(f"setting security mode to {option}")
                 mode = SECURITY_OPTIONS.get(option, None)
