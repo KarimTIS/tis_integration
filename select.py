@@ -121,7 +121,7 @@ class TISSecurity(SelectEntity):
             if self._attr_read_only:
                 # revert state to the current option
                 self._state = self._attr_current_option = STATE_UNAVAILABLE
-                logging.error("resetting state to unavailable")
+                logging.error("resetting state to last known state")
                 await self.api.protocol.sender.send_packet(self.update_packet)
                 self.async_write_ha_state()
                 raise ValueError("The security module is protected and read only")
@@ -141,7 +141,7 @@ class TISSecurity(SelectEntity):
                         self.async_write_ha_state()
                     else:
                         logging.warning(f"Failed to set security mode to {option}")
-                        self._state = self._attr_current_option = STATE_UNKNOWN
+                        self._state = self._attr_current_option = None
                         self.async_write_ha_state()
 
         if option not in self._attr_options:
