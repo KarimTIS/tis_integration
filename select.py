@@ -68,6 +68,7 @@ class TISSecurity(SelectEntity):
         self.channel_number=int(channel_number)
         self.device_id = device_id
         self.gateway = gateway
+        self.last_state = initial_option
         self.update_packet: TISPacket = protocol_handler.generate_update_security_packet(
             self
         )
@@ -84,21 +85,19 @@ class TISSecurity(SelectEntity):
                     self.unprotect()
 
             if event.data.get("feedback_type") == "security_feedback" or event.data.get("feedback_type") == "security_update":
+                logging.warning(f"security feedback event: {event.data}")
                 if self.channel_number == event.data["channel_number"]:
                     mode = event.data["mode"]
                     if mode in SECURITY_FEEDBACK_OPTIONS:
                         option = SECURITY_FEEDBACK_OPTIONS[mode]
+                        self.last_state = self._state
                         self._state = self._attr_current_option = option
-
-            
-
             self.async_write_ha_state()
 
-            # self.update_security_status()
-
         self._listener = self.hass.bus.async_listen(MATCH_ALL, handle_event)
-        _ = await self.api.protocol.sender.send_packet(self.update_packet)
-        
+        await self.api.protocol.sender.send_packet(self.update_packet)
+        logging.warning(f"update packet sent: {self.update_packet}")
+        logging.warning(f"listener added: {self._listener}")
 
     @property
     def name(self):
@@ -122,16 +121,24 @@ class TISSecurity(SelectEntity):
         if self._attr_is_protected:
             if self._attr_read_only:
                 # revert state to the current option
+                logging.error(f"reverting state to {self.last_state}")
+                self._state = self._attr_current_option = self.last_state
+                self.async_write_ha_state()
                 self.schedule_update_ha_state()
                 raise ValueError("The security module is protected and read only")
             else:
-                mode = SECURITY_OPTIONS.get(option,None)
+                logging.warning(f"setting security mode to {option}")
+                mode = SECURITY_OPTIONS.get(option, None)
                 if mode:
-                    control_packet = handler.generate_control_security_packet(self,mode)
+                    logging.warning(f"mode: {mode}")
+                    control_packet = handler.generate_control_security_packet(self, mode)
                     ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
-                    
+                    self.logging.warning(f"control_packet: {control_packet}")
+                    self.logging.warning(f"ack: {ack}")
                     if ack:
-                        # set state        
+                        # set state
+                        logging.warning(f"setting state to {option}")
+                        self.last_state = self._state
                         self._state = self._attr_current_option = option
                         self.async_write_ha_state()
 
@@ -139,8 +146,4 @@ class TISSecurity(SelectEntity):
             raise ValueError(
                 f"Invalid option: {option} (possible options: {self._attr_options})"
             )
-        
-
-
-
 # type: ignore
