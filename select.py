@@ -77,26 +77,26 @@ class TISSecurity(SelectEntity):
         async def handle_event(event: Event):
             """Handle a admin lock status change event."""
             if event.event_type == "admin_lock":
-                logging.warning(f"admin lock event: {event.data}")
+                logging.info(f"admin lock event: {event.data}")
                 if event.data.get("locked"):
                     self.protect() 
                 else:
                     self.unprotect()
 
             if event.data.get("feedback_type") == "security_feedback" or event.data.get("feedback_type") == "security_update":
-                logging.warning(f"security feedback event: {event.data}")
+                logging.info(f"security feedback event: {event.data}")
                 if self.channel_number == event.data["channel_number"]:
                     mode = event.data["mode"]
                     if mode in SECURITY_FEEDBACK_OPTIONS:
                         option = SECURITY_FEEDBACK_OPTIONS[mode]
-                        logging.warning(f"mode: {mode}, option: {option}")
+                        logging.info(f"mode: {mode}, option: {option}")
                         self._state = self._attr_current_option = option
             self.async_write_ha_state()
 
         self._listener = self.hass.bus.async_listen(MATCH_ALL, handle_event)
         await self.api.protocol.sender.send_packet(self.update_packet)
-        logging.warning(f"update packet sent: {self.update_packet}")
-        logging.warning(f"listener added: {self._listener}")
+        logging.info(f"update packet sent: {self.update_packet}")
+        logging.info(f"listener added: {self._listener}")
 
     @property
     def name(self):
@@ -121,23 +121,22 @@ class TISSecurity(SelectEntity):
             if self._attr_read_only:
                 # revert state to the current option
                 self._state = self._attr_current_option = STATE_UNAVAILABLE
-                logging.warning("sending security update packet...")
+                logging.error("resetting state to unavailable")
                 await self.api.protocol.sender.send_packet(self.update_packet)
                 self.async_write_ha_state()
-                self.schedule_update_ha_state()
                 raise ValueError("The security module is protected and read only")
             else:
-                logging.warning(f"setting security mode to {option}")
+                logging.info(f"setting security mode to {option}")
                 mode = SECURITY_OPTIONS.get(option, None)
                 if mode:
-                    logging.warning(f"mode: {mode}")
+                    logging.info(f"mode: {mode}")
                     control_packet = handler.generate_control_security_packet(self, mode)
                     ack = await self.api.protocol.sender.send_packet_with_ack(control_packet)
-                    logging.warning(f"control_packet: {control_packet}")
-                    logging.warning(f"ack: {ack}")
+                    logging.info(f"control_packet: {control_packet}")
+                    logging.info(f"ack: {ack}")
                     if ack:
                         # set state
-                        logging.warning(f"setting state to {option}")
+                        logging.info(f"setting state to {option}")
                         self._state = self._attr_current_option = option
                         self.async_write_ha_state()
 
