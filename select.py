@@ -85,7 +85,6 @@ class TISSecurity(SelectEntity):
                     self.unprotect()
 
             if event.data.get("feedback_type") == "security_feedback" or event.data.get("feedback_type") == "security_update":
-                self._is_connected = True
                 logging.info(f"security feedback event: {event.data}")
                 if self.channel_number == event.data["channel_number"]:
                     mode = event.data["mode"]
