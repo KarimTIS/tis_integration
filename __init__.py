@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TypeAlias
 from attr import dataclass
 from TISControlProtocol.api import TISApi, GetKeyEndpoint, ScanDevicesEndPoint, TISEndPoint
 from TISControlProtocol.Protocols.udp.ProtocolHandler import TISProtocolHandler
@@ -24,7 +23,7 @@ class TISData:
     api: TISApi
 
 PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.COVER, Platform.CLIMATE, Platform.SELECT, Platform.LOCK, Platform.FAN]
-TISConfigEntry: TypeAlias = ConfigEntry[TISData]
+type TISConfigEntry = ConfigEntry[TISData]
 protocol_handler = TISProtocolHandler()
 
 async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry) -> bool:
