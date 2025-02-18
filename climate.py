@@ -183,7 +183,7 @@ class TISClimate(ClimateEntity):
                     operation_value = event.data["operation_value"]
 
                     if self.ac_number == int(ac_number):
-                        logging.info("AC feedback event: %s", event.data)
+                        logging.info(f"AC feedback event: {event.data}")
                         if sub_operation == 0x03:
                             if operation_value == 0x00:
                                 # Turn off
@@ -198,8 +198,7 @@ class TISClimate(ClimateEntity):
                                 self._attr_target_temperature = operation_value
                                 self._attr_current_temperature = operation_value
                                 logging.info(
-                                    "Cool mode temperature updated to %s",
-                                    operation_value,
+                                    f"Cool mode temperature updated to {operation_value}"
                                 )
                             elif sub_operation == 0x05:
                                 # Update fan speed
@@ -208,7 +207,7 @@ class TISClimate(ClimateEntity):
                                     for key, value in FAN_MODES.items()
                                     if value == operation_value
                                 )
-                                logging.info("Fan speed updated to %s", operation_value)
+                                logging.info(f"Fan speed updated to {operation_value}")
                             elif sub_operation == 0x06:
                                 # Change HVAC mode
                                 self._attr_hvac_mode = next(
@@ -220,15 +219,14 @@ class TISClimate(ClimateEntity):
                                     ),
                                     None,
                                 )
-                                logging.info("HVAC mode changed to %s", operation_value)
+                                logging.info(f"HVAC mode changed to {operation_value}")
                             elif sub_operation == 0x07:
                                 # Update heating mode temperature
                                 self._attr_hvac_mode = HVACMode.HEAT
                                 self._attr_target_temperature = operation_value
                                 self._attr_current_temperature = operation_value
                                 logging.info(
-                                    "Heating mode temperature updated to %s",
-                                    operation_value,
+                                    f"Heating mode temperature updated to {operation_value}"
                                 )
 
                             elif sub_operation == 0x08:
@@ -237,14 +235,12 @@ class TISClimate(ClimateEntity):
                                 self._attr_target_temperature = operation_value
                                 self._attr_current_temperature = operation_value
                                 logging.info(
-                                    "Auto mode temperature updated to %s",
-                                    operation_value,
+                                    f"Auto mode temperature updated to {operation_value}"
                                 )
 
                             else:
                                 logging.error(
-                                    "Unknown sub operation for AC feedback: %s",
-                                    sub_operation,
+                                    f"Unknown sub operation for AC feedback: {sub_operation}"
                                 )
                 elif feedback_type == "update_feedback":
                     if event.data["ac_number"] == self.ac_number:
@@ -501,7 +497,7 @@ class TISFloorHeating(ClimateEntity):
             if event.event_type == str(self.device_id):
                 feedback_type = event.data.get("feedback_type", None)
                 if feedback_type == "floor_feedback":
-                    logging.info("floor heating feedback event: %s", event.data)
+                    logging.info(f"floor heating feedback event: {event.data}")
                     heater_number = event.data["number"]
                     sub_operation = event.data["sub_operation"]
                     operation_value = event.data["operation_value"]
@@ -519,8 +515,7 @@ class TISFloorHeating(ClimateEntity):
                                 self._attr_target_temperature = operation_value
                                 self._attr_current_temperature = operation_value
                                 logging.info(
-                                    "Heating mode temperature updated to %s",
-                                    operation_value,
+                                    f"Heating mode temperature updated to {operation_value}"
                                 )
                         elif sub_operation == 0x18:
                             # set temperature
@@ -528,11 +523,10 @@ class TISFloorHeating(ClimateEntity):
                             self._attr_current_temperature = operation_value
                         else:
                             logging.error(
-                                "Unknown sub operation for AC feedback: %s",
-                                sub_operation,
+                                f"Unknown sub operation for AC feedback: {sub_operation}"
                             )
                 elif feedback_type == "floor_update":
-                    logging.info("floor heating update event: %s", event.data)
+                    logging.info(f"floor heating update event: {event.data}")
                     if event.data["heater_number"] == self.heater_number:
                         if event.data["state"] == 0x00:
                             # turn off
