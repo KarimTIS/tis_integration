@@ -230,7 +230,8 @@ class TISApi:
             with open(file_name, "r") as f:
                 data = json.load(f)
                 decrypted = json.loads(Fernet(key).decrypt(base64.b64decode(data)).decode())
-                await self.parse_device_manager_request(json.loads(decrypted))
+                logging.info(f"decrypted data: {decrypted}")
+                await self.parse_device_manager_request(decrypted)
         except FileNotFoundError:
             with open(file_name, "w") as f:
                 json.dump('', f)
