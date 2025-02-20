@@ -205,34 +205,34 @@ class TISApi:
 
     async def get_entities(self, platform: str = None) -> list:
         """Get the stored entities."""
-        directroy = "/conf/data"
-        os.makedirs(directroy, exist_ok=True)
-        logging.warning(os.path.exists(directroy))
+        # directroy = "/conf/data"
+        # os.makedirs(directroy, exist_ok=True)
+        # logging.warning(os.path.exists(directroy))
 
         file_name = 'app.json'
-        output_file = os.path.join(directroy, file_name)
+        # output_file = os.path.join(directroy, file_name)
 
         env_filename = '.env'
-        env_file_path = os.path.join(directroy, env_filename)
+        # env_file_path = os.path.join(directroy, env_filename)
 
         key = None
-        load_dotenv(env_file_path)
+        load_dotenv(env_filename)
         key = os.getenv("ENCRYPTION_KEY")
 
         if key is None:
             key = Fernet.generate_key().decode()
             try:
-                with open(env_file_path, "w") as file:
+                with open(env_filename, "w") as file:
                     file.write(f'ENCRYPTION_KEY="{key}"\n')
             except Exception as e:
                 logging.error(f"Error writing .env file: {e}")
         try:
-            with open(output_file, "r") as f:
+            with open(file_name, "r") as f:
                 data = json.load(f)
                 decrypted = Fernet(key).decrypt(base64.b64decode(data)).decode()
                 await self.parse_device_manager_request(json.loads(decrypted))
         except FileNotFoundError:
-            with open(output_file, "w") as f:
+            with open(file_name, "w") as f:
                 json.dump('', f)
                 data = {}
         await self.parse_device_manager_request(data)
@@ -252,22 +252,22 @@ class TISEndPoint(HomeAssistantView):
         self.api = tis_api
 
     async def post(self, request):
-        directory = "/conf/data"
-        os.makedirs(directory, exist_ok=True)
+        # directory = "/conf/data"
+        # os.makedirs(directory, exist_ok=True)
         file_name = 'app.json'
-        output_file = os.path.join(directory, file_name)
+        # output_file = os.path.join(directory, file_name)
 
         env_filename = '.env'
-        env_file_path = os.path.join(directory, env_filename)
+        # env_file_path = os.path.join(directory, env_filename)
 
         key = None
-        load_dotenv(env_file_path)
+        load_dotenv(env_filename)
         key = os.getenv("ENCRYPTION_KEY")
 
         if key is None:
             key = Fernet.generate_key().decode()
             try:
-                with open(env_file_path, "w") as file:
+                with open(env_filename, "w") as file:
                     file.write(f'ENCRYPTION_KEY="{key}"\n')
             except Exception as e:
                 logging.error(f"Error writing .env file: {e}")
@@ -281,7 +281,7 @@ class TISEndPoint(HomeAssistantView):
         encrypted_str = base64.b64encode(encrypted).decode()
 
         # Dump to file
-        with open(output_file, "w") as f:
+        with open(file_name, "w") as f:
             json.dump(encrypted_str, f, indent=4)
 
         # Start reload operations in the background
