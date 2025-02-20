@@ -231,14 +231,14 @@ class TISApi:
                 data = json.load(f)
                 decrypted_str = Fernet(key).decrypt(base64.b64decode(data)).decode()
 
-                logging.warning("Decrypted Data Type:", type(decrypted_str))  # Check if it's a string
-                logging.warning("Decrypted Data Preview:", decrypted_str[:100])  # Print a preview
+                logging.warning(f"Decrypted Data Type: {type(decrypted_str)}")  # Check if it's a string
+                logging.warning(f"Decrypted Data Preview: {decrypted_str[:100]}")  # Print a preview
 
                 # Convert decrypted JSON string to dictionary
                 data = json.loads(decrypted_str)
 
-                logging.warning("Final Data Type:", type(data))  # Ensure it's a dict
-                logging.warning("Available Keys:", data.keys())  # Check available keys
+                logging.warning(f"Final Data Type: {type(data)}")  # Ensure it's a dict
+                logging.warning(f"Available Keys: {data.keys()}")  # Check available keys
 
                 await self.parse_device_manager_request(data)
 
