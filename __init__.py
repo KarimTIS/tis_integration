@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import os
 from attr import dataclass
-from TISControlProtocol.api import TISApi, GetKeyEndpoint, ScanDevicesEndPoint, TISEndPoint
+from TISControlProtocol.api import *
 from TISControlProtocol.Protocols.udp.ProtocolHandler import TISProtocolHandler
 
 from homeassistant.config_entries import ConfigEntry
