@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from TISControlProtocol.api import TISApi
 import asyncio
-
+import logging
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
     tis_api: TISApi = entry.runtime_data.api
@@ -31,7 +31,8 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
     #     async_add_devices(tis_locks)
 
     # await tis_api.get_entities()
-    # lock_module = tis_api._config_entries.get("lock_module", None)
+    lock_module = tis_api._config_entries.get("lock_module", None)
+    logging.error(f"logging lock_module: {lock_module}")
     async_add_devices([TISControlLock("Admin Lock", "1234")])
 
 
