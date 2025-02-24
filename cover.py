@@ -247,14 +247,11 @@ class TISCoverNoPos(CoverEntity):
         self.channel_number = self.up_channel_number
         self._attr_is_closed = None
         self._attr_device_class = CoverDeviceClass.WINDOW
-        self.last_status = STATE_OPENING
+        self.last_state = STATE_OPENING
         self.listener = None
-        # self.up_update_packet: TISPacket = handler.generate_control_update_packet(self)
-        # self.up_update_packet: TISPacket = handler.generate_control_update_packet(self)
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to events."""
-
         @callback
         async def handle_event(event: Event):
             """Handle the event."""
@@ -266,27 +263,32 @@ class TISCoverNoPos(CoverEntity):
                     if int(channel_number) == self.up_channel_number:
                         if channel_value != 0:
                             self._attr_is_closed = False
-                            self.last_status = STATE_OPENING
+                            self.last_state = STATE_OPENING
+                            self._attr_state = STATE_OPENING
+                            logging.warning(f"up channel value: {channel_value} 'opening'")
+                        else:
+                            self._attr_is_closed = True
+                            self.last_state = STATE_CLOSING
+                            self._attr_state = STATE_CLOSING
+                            logging.warning(f"up channel value: {channel_value} 'closing'")
                     elif int(channel_number) == self.down_channel_number:
                         if channel_value != 0:
                             self._attr_is_closed = True
-                            self.last_status = STATE_CLOSING
-
+                            self._attr_state = STATE_CLOSING
+                            self.last_state = STATE_CLOSING
+                            logging.warning(f"down channel value: {channel_value} 'closing'")
+                        else:
+                            self._attr_is_closed = False
+                            self._attr_state = STATE_OPENING
+                            self.last_state = STATE_OPENING
+                            logging.warning(f"down channel value: {channel_value} 'opening'")
                     else:
-                        self._attr_is_closed = False if self.last_status == STATE_OPENING else True
-
-                # elif event.data["feedback_type"] == "update_response":
-                #     additional_bytes = event.data["additional_bytes"]
-                #     channel_status = int(additional_bytes[self.channel_number])
-                #     self._state = STATE_ON if channel_status > 0 else STATE_OFF
-                # elif event.data["feedback_type"] == "offline_device":
-                #     self._state = STATE_UNKNOWN
-
+                        logging.warning(f"channel number: {channel_number} 'stopping'")
+                        self._attr_state = self.last_state
+                        self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             await self.async_update_ha_state(True)
             self.schedule_update_ha_state()
-
         self.listener = self.hass.bus.async_listen(str(self.device_id), handle_event)
-        # _ = await self.api.protocol.sender.send_packet(self.update_packet)
 
     @property
     def name(self) -> str:
@@ -322,9 +324,11 @@ class TISCoverNoPos(CoverEntity):
         ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
         if ack_status:
             self._attr_is_closed = False
-            self.last_status = STATE_OPENING
+            self._attr_state = STATE_OPENING
+            self.last_state = STATE_OPENING
         else:
             self._attr_is_closed = None
+            self._attr_state = None
         self.async_write_ha_state()
 
     async def async_close_cover(self, **kwargs: Any) -> None:
@@ -334,9 +338,11 @@ class TISCoverNoPos(CoverEntity):
         ack_status = await self.api.protocol.sender.send_packet_with_ack(down_packet)
         if ack_status:
             self._attr_is_closed = True
-            self.last_status = STATE_CLOSING
+            self._attr_state = STATE_CLOSING
+            self.last_state = STATE_CLOSING
         else:
             self._attr_is_closed = None
+            self._attr_state = None
         self.async_write_ha_state()
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
@@ -348,8 +354,8 @@ class TISCoverNoPos(CoverEntity):
                 down_packet
             )
             if ack_status:
-                self._attr_state = self.last_status
-                self._attr_is_closed = False if self.last_status == STATE_OPENING else True
+                self._attr_state = self.last_state
+                self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
                 self._attr_state = None
                 self._attr_is_closed = None
@@ -357,8 +363,8 @@ class TISCoverNoPos(CoverEntity):
         elif not self._attr_is_closed:
             ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
             if ack_status:
-                self._attr_state = self.last_status
-                self._attr_is_closed = False if self.last_status == STATE_OPENING else True
+                self._attr_state = self.last_state
+                self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
                 self._attr_state = None
                 self._attr_is_closed = None
