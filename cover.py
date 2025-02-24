@@ -323,10 +323,12 @@ class TISCoverNoPos(CoverEntity):
         # we only need to send the up packet here
         ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
         if ack_status:
+            logging.warning("up packet sent 'opening'")
             self._attr_is_closed = False
             self._attr_state = STATE_OPENING
             self.last_state = STATE_OPENING
         else:
+            logging.warning("up packet not sent 'None'")
             self._attr_is_closed = None
             self._attr_state = None
         self.async_write_ha_state()
@@ -337,10 +339,12 @@ class TISCoverNoPos(CoverEntity):
         # we only need to send the down packet here
         ack_status = await self.api.protocol.sender.send_packet_with_ack(down_packet)
         if ack_status:
+            logging.warning("down packet sent 'closing'")
             self._attr_is_closed = True
             self._attr_state = STATE_CLOSING
             self.last_state = STATE_CLOSING
         else:
+            logging.warning("down packet not sent 'None'")
             self._attr_is_closed = None
             self._attr_state = None
         self.async_write_ha_state()
@@ -354,18 +358,22 @@ class TISCoverNoPos(CoverEntity):
                 down_packet
             )
             if ack_status:
+                logging.warning("down packet sent 'stopping'")
                 self._attr_state = self.last_state
                 self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
+                logging.warning("down packet not sent 'stopping'")
                 self._attr_state = None
                 self._attr_is_closed = None
 
         elif not self._attr_is_closed:
             ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
             if ack_status:
+                logging.warning("up packet sent 'stopping'")
                 self._attr_state = self.last_state
                 self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
+                logging.warning("up packet not sent 'stopping'")
                 self._attr_state = None
                 self._attr_is_closed = None
         self.async_write_ha_state()
