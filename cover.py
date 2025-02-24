@@ -265,15 +265,15 @@ class TISCoverNoPos(CoverEntity):
                             self._attr_is_closed = False
                             self.last_state = STATE_OPENING
                             self._attr_state = STATE_OPENING
-                            logging.warning(f"up channel value: {channel_value} 'opening'")
+                            logging.info(f"up channel value: {channel_value} 'opening'")
                     elif int(channel_number) == self.down_channel_number:
                         if channel_value != 0:
                             self._attr_is_closed = True
                             self._attr_state = STATE_CLOSING
                             self.last_state = STATE_CLOSING
-                            logging.warning(f"down channel value: {channel_value} 'closing'")
+                            logging.info(f"down channel value: {channel_value} 'closing'")
                     else:
-                        logging.warning(f"channel number: {channel_number} 'stopping'")
+                        logging.info(f"channel number: {channel_number} 'stopping'")
                         self._attr_state = self.last_state
                         self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             await self.async_update_ha_state(True)
@@ -313,12 +313,12 @@ class TISCoverNoPos(CoverEntity):
         # we only need to send the up packet here
         ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
         if ack_status:
-            logging.warning("up packet sent 'opening'")
+            logging.info("up packet sent 'opening'")
             self._attr_is_closed = False
             self._attr_state = STATE_OPENING
             self.last_state = STATE_OPENING
         else:
-            logging.warning("up packet not sent 'None'")
+            logging.info("up packet not sent 'None'")
             self._attr_is_closed = None
             self._attr_state = None
         self.async_write_ha_state()
@@ -329,12 +329,12 @@ class TISCoverNoPos(CoverEntity):
         # we only need to send the down packet here
         ack_status = await self.api.protocol.sender.send_packet_with_ack(down_packet)
         if ack_status:
-            logging.warning("down packet sent 'closing'")
+            logging.info("down packet sent 'closing'")
             self._attr_is_closed = True
             self._attr_state = STATE_CLOSING
             self.last_state = STATE_CLOSING
         else:
-            logging.warning("down packet not sent 'None'")
+            logging.info("down packet not sent 'None'")
             self._attr_is_closed = None
             self._attr_state = None
         self.async_write_ha_state()
@@ -348,22 +348,22 @@ class TISCoverNoPos(CoverEntity):
                 down_packet
             )
             if ack_status:
-                logging.warning("down packet sent 'stopping'")
+                logging.info("down packet sent 'stopping'")
                 self._attr_state = self.last_state
                 self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
-                logging.warning("down packet not sent 'stopping'")
+                logging.info("down packet not sent 'stopping'")
                 self._attr_state = None
                 self._attr_is_closed = None
 
         elif not self._attr_is_closed:
             ack_status = await self.api.protocol.sender.send_packet_with_ack(up_packet)
             if ack_status:
-                logging.warning("up packet sent 'stopping'")
+                logging.info("up packet sent 'stopping'")
                 self._attr_state = self.last_state
                 self._attr_is_closed = False if self.last_state == STATE_OPENING else True
             else:
-                logging.warning("up packet not sent 'stopping'")
+                logging.info("up packet not sent 'stopping'")
                 self._attr_state = None
                 self._attr_is_closed = None
         self.async_write_ha_state()
