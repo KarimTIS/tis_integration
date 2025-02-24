@@ -266,22 +266,12 @@ class TISCoverNoPos(CoverEntity):
                             self.last_state = STATE_OPENING
                             self._attr_state = STATE_OPENING
                             logging.warning(f"up channel value: {channel_value} 'opening'")
-                        else:
-                            self._attr_is_closed = True
-                            self.last_state = STATE_CLOSING
-                            self._attr_state = STATE_CLOSING
-                            logging.warning(f"up channel value: {channel_value} 'closing'")
                     elif int(channel_number) == self.down_channel_number:
                         if channel_value != 0:
                             self._attr_is_closed = True
                             self._attr_state = STATE_CLOSING
                             self.last_state = STATE_CLOSING
                             logging.warning(f"down channel value: {channel_value} 'closing'")
-                        else:
-                            self._attr_is_closed = False
-                            self._attr_state = STATE_OPENING
-                            self.last_state = STATE_OPENING
-                            logging.warning(f"down channel value: {channel_value} 'opening'")
                     else:
                         logging.warning(f"channel number: {channel_number} 'stopping'")
                         self._attr_state = self.last_state
