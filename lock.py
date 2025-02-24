@@ -7,33 +7,12 @@ import logging
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
     tis_api: TISApi = entry.runtime_data.api
-    # locks: dict = await tis_api.get_entities(platform="lock")
-
-    # if locks:
-    #     lock_entities = [
-    #         (
-    #             appliance_name,
-    #             next(iter(appliance["channels"][0].values())),
-    #             appliance["device_id"],
-    #             appliance["gateway"],
-    #             appliance["password"],
-    #         )
-    #         for lock in locks
-    #         for appliance_name, appliance in lock.items()
-    #     ]
-    #     tis_locks = [
-    #         TISControlLock(
-    #             name=lock_name,
-    #             password=password,
-    #         )
-    #         for lock_name, _, _, _, password in lock_entities
-    #     ]
-    #     async_add_devices(tis_locks)
-
-    # await tis_api.get_entities()
     lock_module = tis_api.config_entries.get("lock_module", None)
-    logging.error(f"logging lock_module: {lock_module}")
-    async_add_devices([TISControlLock("Admin Lock", "1234")])
+    if lock_module is None:
+        logging.error("No lock module found in the configuration")
+        return
+    else:
+        async_add_devices([TISControlLock("Admin Lock", lock_module["password"])])
 
 
 class TISControlLock(LockEntity):
