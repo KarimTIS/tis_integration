@@ -56,12 +56,12 @@ class TISConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle a flow initiated by the user."""
         errors = {}
         if user_input is not None:
-            logging.info("recieved user input %s", user_input)
+            logging.info(f"recieved user input {user_input}")
             # Assuming a function `validate_port` that returns True if the port is valid
             is_valid = await self.validate_port(user_input[CONF_PORT])
             if not is_valid:
                 errors["base"] = "invalid_port"  # Custom error key
-                logging.error("Provided port is invalid: %s", user_input[CONF_PORT])
+                logging.error(f"Provided port is invalid: {user_input[CONF_PORT]}")
 
             if not errors:
                 return self.async_create_entry(
@@ -69,7 +69,7 @@ class TISConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
             else:  # noqa: RET505
                 # If there are errors, show the form again with the error message
-                logging.error("Errors occurred: %s", errors)
+                logging.error(f"Errors occurred: {errors}")
                 return self._show_setup_form(errors)
 
         # If user_input is None (initial step), show the setup form

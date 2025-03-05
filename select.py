@@ -1,7 +1,7 @@
 from homeassistant.components.select import SelectEntity
-from TISControlProtocol.mock_api import TISApi
+from TISControlProtocol.api import TISApi
 
-from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import MATCH_ALL, STATE_UNAVAILABLE
 from homeassistant.core import callback, Event, HomeAssistant
 from TISControlProtocol.Protocols.udp.ProtocolHandler import (
     TISPacket,
@@ -21,8 +21,7 @@ handler = TISProtocolHandler()
 async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry, async_add_devices: AddEntitiesCallback):
     """Set up the TIS select."""
     tis_api: TISApi = entry.runtime_data.api
-    # # Fetch all switches from the TIS API
-    # await tis_api.get_entities()
+    # Fetch all switches from the TIS API
     selects: dict = await tis_api.get_entities(platform="security")
     
     if selects:
@@ -108,7 +107,7 @@ class TISSecurity(SelectEntity):
 
     @property
     def current_option(self):
-        return self._attr_current_option
+        return self._attr_current_option if self._attr_current_option in SECURITY_FEEDBACK_OPTIONS.values() else None
 
     def protect(self):
         self._attr_read_only = True

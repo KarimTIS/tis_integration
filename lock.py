@@ -3,18 +3,22 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from TISControlProtocol.api import TISApi
 import asyncio
-
+import logging
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_devices):
     tis_api: TISApi = entry.runtime_data.api
-    # await tis_api.get_entities()
-    # lock_module = tis_api._config_entries.get("lock_module", None)
-    async_add_devices([TISControlLock("Admin Lock", "1234")])
+    lock_module = tis_api.config_entries.get("lock_module", None)
+    if lock_module is None:
+        logging.error("No lock module found in the configuration")
+        return
+    else:
+        async_add_devices([TISControlLock("Admin Lock", lock_module["password"])])
 
 
 class TISControlLock(LockEntity):
     def __init__(self, name, password):
         self._attr_name = name
+        self.unique_id = f"lock_{self.name}"
         self._attr_is_locked = True
         self._attr_password = password
         self._attr_changed_by = None

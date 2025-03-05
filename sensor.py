@@ -150,7 +150,7 @@ class CoordinatedTemperatureSensor(BaseSensorEntity, SensorEntity):
                     self._state = event.data["temp"]
                 self.async_write_ha_state()
             except Exception as e:
-                logging.error("event data error for temperature: %s", event.data)
+                logging.error(f"event data error for temperature: {event.data}")
 
         self.hass.bus.async_listen(str(self.device_id), handle_temperature_feedback)
 
@@ -201,7 +201,7 @@ class CoordinatedLUXSensor(BaseSensorEntity, SensorEntity):
                     self._state = int(event.data["lux"])
                 self.async_write_ha_state()
             except Exception as e:
-                logging.error("event data error for lux: %s", event.data)
+                logging.error(f"event data error for lux: {event.data}")
 
         self.hass.bus.async_listen(str(self.device_id), handle_health_feedback)
 

@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import logging
 import os
-
 from attr import dataclass
-from TISControlProtocol.api import TISApi, GetKeyEndpoint, ScanDevicesEndPoint, TISEndPoint
+from TISControlProtocol.api import *
 from TISControlProtocol.Protocols.udp.ProtocolHandler import TISProtocolHandler
 
 from homeassistant.config_entries import ConfigEntry
@@ -16,10 +15,11 @@ from homeassistant.core import HomeAssistant
 
 from .const import DEVICES_DICT, DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.COVER, Platform.CLIMATE, Platform.SELECT, Platform.LOCK, Platform.FAN]
-type TISConfigEntry = ConfigEntry[TISData]
-protocol_handler = TISProtocolHandler()
-
+from TISControlProtocol.Protocols import setup_udp_protocol
+from TISControlProtocol.Protocols.udp.ProtocolHandler import (
+    TISProtocolHandler,
+    TISPacket,
+)
 
 @dataclass
 class TISData:
@@ -27,6 +27,9 @@ class TISData:
 
     api: TISApi
 
+PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.COVER, Platform.CLIMATE, Platform.SELECT, Platform.LOCK, Platform.FAN]
+type TISConfigEntry = ConfigEntry[TISData]
+protocol_handler = TISProtocolHandler()
 
 async def async_setup_entry(hass: HomeAssistant, entry: TISConfigEntry) -> bool:
     """Set up TISControl from a config entry."""

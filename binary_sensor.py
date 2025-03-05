@@ -59,7 +59,6 @@ class TISBinarySensor(BinarySensorEntity):
         channel_number,
         device_id: list[int],
         gateway: str,
-        device_class: str="motion",
     ):
         """Initialize the sensor."""
         self._api = tis_api
@@ -69,7 +68,7 @@ class TISBinarySensor(BinarySensorEntity):
         self._listener = None
         self._attr_state = None
         self._attr_is_on = None
-        self._attr_device_class = (device_class,)
+        self._attr_device_class = ("motion",)
         self._gateway = gateway
         self._attr_unique_id = f"{self._name}_{self._channel_number}"
 
