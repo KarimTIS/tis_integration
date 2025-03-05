@@ -308,23 +308,23 @@ class TISRGBLight(LightEntity):
                             self._attr_rgb_color[1],
                             self._attr_rgb_color[2],
                         )
-                        self.rgb_values_flag[0] = 1
+                        self.rgb_value_flags[0] = 1
                     elif int(channel_number) == self.g_channel:
                         self._attr_rgb_color = (
                             self._attr_rgb_color[0],
                             int((channel_value / 100) * 255),
                             self._attr_rgb_color[2],
                         )
-                        self.rgb_values_flag[1] = 1
+                        self.rgb_value_flags[1] = 1
                     elif int(channel_number) == self.b_channel:
                         self._attr_rgb_color = (
                             self._attr_rgb_color[0],
                             self._attr_rgb_color[1],
                             int((channel_value / 100) * 255),
                         )
-                        self.rgb_values_flag[2] = 1
-                    if self.rgb_values_flag == [1, 1, 1]:
-                        self.rgb_values_flag = [0, 0, 0]
+                        self.rgb_value_flags[2] = 1
+                    if self.rgb_value_flags == [1, 1, 1]:
+                        self.rgb_value_flags = [0, 0, 0]
                         self.async_write_ha_state()
                 elif event.data["feedback_type"] == "update_response":
                     additional_bytes = event.data["additional_bytes"]
