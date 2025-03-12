@@ -8,7 +8,7 @@
   "homekit": {},
   "iot_class": "local_polling",
   "requirements": [
-    "TISControlProtocol==0.6.22",
+    "TISControlProtocol==0.6.23",
     "aiofiles==24.1.0",
     "RPi.GPIO==0.7.1",
     "spidev==3.6",
