@@ -58,6 +58,7 @@ async def async_setup_entry(
                     gateway=gateway,
                     name=appliance_name,
                     device_id=device_id,
+                    channel_number=channel_number,
                 )
                 for appliance_name, channel_number, device_id, is_protected, gateway in sensor_entities
             ]
@@ -99,7 +100,10 @@ def get_coordinator(
             update_packet = protocol_handler.generate_health_sensor_update_packet(
                 entity=entity
             )
-        # TODO: fix this
+        elif coordinator_type == "analog_sensor":
+            update_packet = protocol_handler.generate_update_analog_packet(
+                entity=entity
+            )
         coordinators[coordinator_id] = SensorUpdateCoordinator(
             hass,
             tis_api,
@@ -130,6 +134,7 @@ class CoordinatedTemperatureSensor(BaseSensorEntity, SensorEntity):
         gateway: str,
         name: str,
         device_id: list,
+        channel_number: int,
     ) -> None:
         """Initialize the sensor."""
         coordinator = get_coordinator(hass, tis_api, device_id, gateway, "temp_sensor")
@@ -137,6 +142,7 @@ class CoordinatedTemperatureSensor(BaseSensorEntity, SensorEntity):
         self._attr_icon = "mdi:thermometer"
         self.name = name
         self.device_id = device_id
+        self.channel_number = channel_number
 
     async def async_added_to_hass(self) -> None:
         """Register for the CPU temperature event."""
@@ -180,6 +186,7 @@ class CoordinatedLUXSensor(BaseSensorEntity, SensorEntity):
         gateway: str,
         name: str,
         device_id: list,
+        channel_number: int,
     ) -> None:
         """Initialize the sensor."""
         coordinator = get_coordinator(hass, tis_api, device_id, gateway, "health_sensor")
@@ -188,6 +195,7 @@ class CoordinatedLUXSensor(BaseSensorEntity, SensorEntity):
         self._attr_icon = "mdi:brightness-6"
         self.name = name
         self.device_id = device_id
+        self.channel_number = channel_number
 
     async def async_added_to_hass(self) -> None:
         """Register for the LUX temperature event."""
@@ -204,6 +212,51 @@ class CoordinatedLUXSensor(BaseSensorEntity, SensorEntity):
                 logging.error(f"event data error for lux: {event.data}")
 
         self.hass.bus.async_listen(str(self.device_id), handle_health_feedback)
+
+    def _update_state(self, data):
+        """Update the state based on the data."""
+
+class CoordinatedAnalogSensor(BaseSensorEntity, SensorEntity):
+    """Representation of a coordinated TIS sensor.
+
+    :param coordinator: The coordinator object. :type coordinator: SensorUpdateCoordinator
+    :param name: The name of the sensor. :type name: str
+    :param device_id: The device id of the sensor. :type device_id: str
+    """
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        tis_api: TISApi,
+        gateway: str,
+        name: str,
+        device_id: list,
+        channel_number: int,
+    ) -> None:
+        """Initialize the sensor."""
+        coordinator = get_coordinator(hass, tis_api, device_id, gateway, "analog_sensor")
+
+        super().__init__(coordinator, name, device_id)
+        self._attr_icon = "mdi:current-ac"
+        self.name = name
+        self.device_id = device_id
+        self.channel_number = channel_number
+
+    async def async_added_to_hass(self) -> None:
+        """Register for the LUX temperature event."""
+        await super().async_added_to_hass()
+
+        @callback
+        def handle_analog_feedback(event: Event):
+            """Handle the lux update event."""
+            try:
+                if event.data["feedback_type"] == "analog_feedback":
+                    self._state = int(event.data["analog"][self.channel_number - 1])
+                self.async_write_ha_state()
+            except Exception as e:
+                logging.error(f"event data error for analog sensor: {event.data}")
+
+        self.hass.bus.async_listen(str(self.device_id), handle_analog_feedback)
 
     def _update_state(self, data):
         """Update the state based on the data."""
@@ -254,4 +307,5 @@ class CPUTemperatureSensor(SensorEntity):
 RELEVANT_TYPES: dict[str, type[CoordinatedLUXSensor]] = {
     "lux_sensor": CoordinatedLUXSensor,
     "temperature_sensor": CoordinatedTemperatureSensor,
+    "analog_sensor": CoordinatedAnalogSensor,
 }
